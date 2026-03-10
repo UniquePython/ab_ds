@@ -1,3 +1,62 @@
+/*
+ * hs.h — hash set for C; open addressing with linear probing
+ * Part of ab_ds — https://github.com/UniquePython/ab_ds
+ *
+ * USAGE
+ *   In ONE .c file:
+ *     #define AB_HS_IMPLEMENTATION
+ *     #include "hs.h"
+ *
+ *   Define a typed hash set:
+ *     #define int_hash(x)  ((size_t)(x) * 2654435761UL)
+ *     #define int_eq(a, b) ((a) == (b))
+ *     AB_HS_DEFINE(int, IntHashSet, int_hash, int_eq)
+ *
+ *     IntHashSet hs;
+ *     IntHashSet_init(&hs);
+ *     IntHashSet_add(&hs, 42);
+ *     IntHashSet_free(&hs);
+ *
+ *   For strings:
+ *     static size_t str_hash(const char *s) {
+ *         size_t h = 14695981039346656037ULL;
+ *         while (*s) { h ^= (unsigned char)*s++; h *= 1099511628211ULL; }
+ *         return h;
+ *     }
+ *     #define str_eq(a, b) (strcmp((a), (b)) == 0)
+ *     AB_HS_DEFINE(const char*, StrHashSet, str_hash, str_eq)
+ *
+ * API
+ *   _init(hs)                       initialise (must be called before use)
+ *   _free(hs)                       free heap memory, reset to empty
+ *   _add(hs, element)       bool    insert; false if already present
+ *   _remove(hs, element)    bool    remove; false if not found
+ *   _contains(hs, element)  bool
+ *   _clear(hs)                      mark all buckets empty, keep allocation
+ *   _size(hs)               size_t
+ *   _is_empty(hs)           bool
+ *
+ * CONFIGURATION (define before including)
+ *   AB_HS_INITIAL_CAPACITY   default: 8 (must be power of 2)
+ *   AB_HS_MALLOC             default: malloc
+ *   AB_HS_FREE               default: free
+ *
+ * LICENSE — MIT
+ *   Copyright (c) 2025 ab_ds contributors
+ *   Permission is hereby granted, free of charge, to any person obtaining
+ *   a copy of this software and associated documentation files (the
+ *   "Software"), to deal in the Software without restriction, including
+ *   without limitation the rights to use, copy, modify, merge, publish,
+ *   distribute, sublicense, and/or sell copies of the Software, and to
+ *   permit persons to whom the Software is furnished to do so, subject to
+ *   the following conditions: The above copyright notice and this
+ *   permission notice shall be included in all copies or substantial
+ *   portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ *   WARRANTY OF ANY KIND.
+ *
+ * VERSION — 0.1.0
+ */
+
 #ifndef AB_HS_H
 #define AB_HS_H
 
@@ -15,28 +74,11 @@
 #endif
 
 #ifndef AB_HS_INITIAL_CAPACITY
-#define AB_HS_INITIAL_CAPACITY 8 /* must be power of 2 */
+#define AB_HS_INITIAL_CAPACITY 8
 #endif
 
 #define AB_HS_LOAD_FACTOR_NUM 3
 #define AB_HS_LOAD_FACTOR_DEN 4
-
-/*
- * hash_fn(element) -> size_t
- * equals_fn(a, b)  -> bool
- *
- * Example for int:
- *   #define int_hash(x)    ((size_t)(x) * 2654435761UL)   // Knuth multiplicative
- *   #define int_eq(a, b)   ((a) == (b))
- *
- * Example for strings:
- *   static size_t str_hash(const char *s) {
- *       size_t h = 14695981039346656037ULL;
- *       while (*s) { h ^= (unsigned char)*s++; h *= 1099511628211ULL; }
- *       return h;
- *   }
- *   #define str_eq(a, b) (strcmp((a), (b)) == 0)
- */
 
 #ifdef AB_HS_IMPLEMENTATION
 
@@ -183,8 +225,7 @@
         while (hs->buckets[j].occupied)                              \
         {                                                            \
             size_t natural = hash_fn(hs->buckets[j].data) & mask;    \
-            */                                                       \
-                bool should_shift =                                  \
+            bool should_shift =                                      \
                 (j > gap)                                            \
                     ? (natural <= gap || natural > j)                \
                     : (natural <= gap && natural > j);               \
@@ -257,4 +298,4 @@
                                                      \
     AB_HS_DEFINE_FUNCTIONS(type, name, hash_fn, equals_fn)
 
-#endif // AB_HS_H
+#endif

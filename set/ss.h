@@ -1,3 +1,63 @@
+/*
+ * ss.h — sorted set for C, backed by a sorted array with binary search
+ * Part of ab_ds — https://github.com/UniquePython/ab_ds
+ *
+ * USAGE
+ *   In ONE .c file:
+ *     #define AB_SS_IMPLEMENTATION
+ *     #include "ss.h"
+ *
+ *   Define a typed sorted set:
+ *     #define int_cmp(a, b) ((a) > (b)) - ((a) < (b))
+ *     AB_SS_DEFINE(int, IntSortedSet, int_cmp)
+ *
+ *     IntSortedSet ss;
+ *     IntSortedSet_init(&ss);
+ *     IntSortedSet_add(&ss, 5);
+ *     IntSortedSet_add(&ss, 2);
+ *     IntSortedSet_free(&ss);
+ *
+ * API
+ *   _init(ss)                          initialise (must be called before use)
+ *   _free(ss)                          free heap memory, reset to empty
+ *   _add(ss, element)          bool    insert; false if already present
+ *   _remove(ss, element)       bool    remove; false if not found
+ *   _contains(ss, element)     bool
+ *   _get(ss, index)            type*   element at sorted position index
+ *   _first(ss)                 type*   smallest element
+ *   _last(ss)                  type*   largest element
+ *   _ceiling(ss, element)      type*   first element >= element
+ *   _higher(ss, element)       type*   first element > element
+ *   _floor(ss, element)        type*   last element <= element
+ *   _lower(ss, element)        type*   last element < element
+ *   _clear(ss)                         set size to 0, keep allocation
+ *   _size(ss)                  size_t
+ *   _is_empty(ss)              bool
+ *
+ * cmp_fn(a, b) must return:
+ *   < 0  if a < b,   0  if a == b,   > 0  if a > b
+ *
+ * CONFIGURATION (define before including)
+ *   AB_SS_INITIAL_CAPACITY   default: 8
+ *   AB_SS_REALLOC            default: realloc
+ *   AB_SS_FREE               default: free
+ *
+ * LICENSE — MIT
+ *   Copyright (c) 2025 ab_ds contributors
+ *   Permission is hereby granted, free of charge, to any person obtaining
+ *   a copy of this software and associated documentation files (the
+ *   "Software"), to deal in the Software without restriction, including
+ *   without limitation the rights to use, copy, modify, merge, publish,
+ *   distribute, sublicense, and/or sell copies of the Software, and to
+ *   permit persons to whom the Software is furnished to do so, subject to
+ *   the following conditions: The above copyright notice and this
+ *   permission notice shall be included in all copies or substantial
+ *   portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ *   WARRANTY OF ANY KIND.
+ *
+ * VERSION — 0.1.0
+ */
+
 #ifndef AB_SS_H
 #define AB_SS_H
 
@@ -17,19 +77,6 @@
 #ifndef AB_SS_INITIAL_CAPACITY
 #define AB_SS_INITIAL_CAPACITY 8
 #endif
-
-/*
- * cmp_fn(a, b) must return:
- *   < 0  if a < b
- *     0  if a == b
- *   > 0  if a > b
- *
- * Example for int:
- *   #define int_cmp(a, b) ((a) - (b))
- *
- * Example for strings:
- *   #define str_cmp(a, b) strcmp((a), (b))
- */
 
 #ifdef AB_SS_IMPLEMENTATION
 
@@ -230,4 +277,4 @@
                                                     \
     AB_SS_DEFINE_FUNCTIONS(type, name, cmp_fn)
 
-#endif // AB_SS_H
+#endif

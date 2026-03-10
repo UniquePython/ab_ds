@@ -1,3 +1,57 @@
+/*
+ * al.h — dynamic array (ArrayList) for C
+ * Part of ab_ds — https://github.com/UniquePython/ab_ds
+ *
+ * USAGE
+ *   In ONE .c file:
+ *     #define AB_AL_IMPLEMENTATION
+ *     #include "al.h"
+ *
+ *   Define a typed list:
+ *     #define int_eq(a, b) ((a) == (b))
+ *     AB_AL_DEFINE(int, IntList, int_eq)
+ *
+ *     IntList list;
+ *     IntList_init(&list);
+ *     IntList_push_back(&list, 42);
+ *     IntList_push_back(&list, 99);
+ *     IntList_free(&list);
+ *
+ * API
+ *   _init(al)                        initialise (must be called before use)
+ *   _free(al)                        free heap memory, reset to empty
+ *   _push_back(al, element)          append to back
+ *   _insert(al, index, element)      insert at index [0, size]
+ *   _remove(al, index, *out)  bool   remove at index [0, size-1], write to out if non-NULL
+ *   _get(al, index)           type*  pointer to element, NULL if out of range
+ *   _set(al, index, element, *out)   replace element, write old to out if non-NULL
+ *   _clear(al)                       set size to 0, keep allocation
+ *   _size(al)                size_t
+ *   _is_empty(al)            bool
+ *   _index_of(al, element)   ptrdiff_t   first index of element, -1 if absent
+ *   _contains(al, element)   bool
+ *
+ * CONFIGURATION (define before including)
+ *   AB_AL_INITIAL_CAPACITY   default: 10
+ *   AB_AL_REALLOC            default: realloc
+ *   AB_AL_FREE               default: free
+ *
+ * LICENSE — MIT
+ *   Copyright (c) 2025 ab_ds contributors
+ *   Permission is hereby granted, free of charge, to any person obtaining
+ *   a copy of this software and associated documentation files (the
+ *   "Software"), to deal in the Software without restriction, including
+ *   without limitation the rights to use, copy, modify, merge, publish,
+ *   distribute, sublicense, and/or sell copies of the Software, and to
+ *   permit persons to whom the Software is furnished to do so, subject to
+ *   the following conditions: The above copyright notice and this
+ *   permission notice shall be included in all copies or substantial
+ *   portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ *   WARRANTY OF ANY KIND.
+ *
+ * VERSION — 0.1.0
+ */
+
 #ifndef AB_AL_H
 #define AB_AL_H
 
@@ -38,7 +92,7 @@
         al->capacity = 0;                                               \
     }                                                                   \
                                                                         \
-    void name##_push(name *al, type element)                            \
+    void name##_push_back(name *al, type element)                       \
     {                                                                   \
         if (!name##_valid(al))                                          \
             return;                                                     \
@@ -87,14 +141,6 @@
     }                                                                   \
                                                                         \
     type *name##_get(name *al, size_t index)                            \
-    {                                                                   \
-        if (!name##_valid(al) || !name##_index_valid(al, index))        \
-            return NULL;                                                \
-                                                                        \
-        return &al->data[index];                                        \
-    }                                                                   \
-                                                                        \
-    const type *name##_get_const(const name *al, size_t index)          \
     {                                                                   \
         if (!name##_valid(al) || !name##_index_valid(al, index))        \
             return NULL;                                                \
@@ -160,13 +206,12 @@
     void name##_init(name *al);                                       \
     void name##_free(name *al);                                       \
                                                                       \
-    void name##_push(name *al, type element);                         \
+    void name##_push_back(name *al, type element);                    \
     void name##_insert(name *al, size_t index, type element);         \
                                                                       \
     bool name##_remove(name *al, size_t index, type *out);            \
                                                                       \
     type *name##_get(name *al, size_t index);                         \
-    const type *name##_get_const(const name *al, size_t index);       \
                                                                       \
     bool name##_set(name *al, size_t index, type element, type *out); \
                                                                       \
@@ -193,13 +238,11 @@
         return al != NULL;                                                                               \
     }                                                                                                    \
                                                                                                          \
-    /* Valid range for get/set/remove: [0, size-1] */                                                    \
     static inline bool name##_index_valid(const name *al, size_t index)                                  \
     {                                                                                                    \
         return al && index < al->size;                                                                   \
     }                                                                                                    \
                                                                                                          \
-    /* Valid range for insert: [0, size] — allows appending at the end */                                \
     static inline bool name##_insert_index_valid(const name *al, size_t index)                           \
     {                                                                                                    \
         return al && index <= al->size;                                                                  \
@@ -225,4 +268,4 @@
                                                                                                          \
     AB_AL_DEFINE_FUNCTIONS(type, name, equals_fn)
 
-#endif // AB_AL_H
+#endif

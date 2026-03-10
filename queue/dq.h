@@ -1,3 +1,60 @@
+/*
+ * dq.h — double-ended queue (Deque) for C, backed by a ring buffer
+ * Part of ab_ds — https://github.com/UniquePython/ab_ds
+ *
+ * USAGE
+ *   In ONE .c file:
+ *     #define AB_DQ_IMPLEMENTATION
+ *     #include "dq.h"
+ *
+ *   Define a typed deque:
+ *     #define int_eq(a, b) ((a) == (b))
+ *     AB_DQ_DEFINE(int, IntDeque, int_eq)
+ *
+ *     IntDeque dq;
+ *     IntDeque_init(&dq);
+ *     IntDeque_push_back(&dq, 1);
+ *     IntDeque_push_front(&dq, 0);
+ *     IntDeque_free(&dq);
+ *
+ * API
+ *   _init(dq)                          initialise (must be called before use)
+ *   _free(dq)                          free heap memory, reset to empty
+ *   _push_back(dq, element)            O(1) amortised append
+ *   _push_front(dq, element)           O(1) amortised prepend
+ *   _pop_back(dq, *out)        bool    remove from back, write to out if non-NULL
+ *   _pop_front(dq, *out)       bool    remove from front, write to out if non-NULL
+ *   _peek_front(dq)            type*   pointer to front element, NULL if empty
+ *   _peek_back(dq)             type*   pointer to back element, NULL if empty
+ *   _get(dq, index)            type*   pointer to element at logical index
+ *   _set(dq, index, element, *out)     replace element, write old to out if non-NULL
+ *   _clear(dq)                         reset size to 0, keep allocation
+ *   _size(dq)                  size_t
+ *   _is_empty(dq)              bool
+ *   _index_of(dq, element)     ptrdiff_t   first logical index of element, -1 if absent
+ *   _contains(dq, element)     bool
+ *
+ * CONFIGURATION (define before including)
+ *   AB_DQ_INITIAL_CAPACITY   default: 8 (must be power of 2)
+ *   AB_DQ_REALLOC            default: realloc
+ *   AB_DQ_FREE               default: free
+ *
+ * LICENSE — MIT
+ *   Copyright (c) 2025 ab_ds contributors
+ *   Permission is hereby granted, free of charge, to any person obtaining
+ *   a copy of this software and associated documentation files (the
+ *   "Software"), to deal in the Software without restriction, including
+ *   without limitation the rights to use, copy, modify, merge, publish,
+ *   distribute, sublicense, and/or sell copies of the Software, and to
+ *   permit persons to whom the Software is furnished to do so, subject to
+ *   the following conditions: The above copyright notice and this
+ *   permission notice shall be included in all copies or substantial
+ *   portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ *   WARRANTY OF ANY KIND.
+ *
+ * VERSION — 0.1.0
+ */
+
 #ifndef AB_DQ_H
 #define AB_DQ_H
 
@@ -229,4 +286,4 @@
                                                                         \
     AB_DQ_DEFINE_FUNCTIONS(type, name, equals_fn)
 
-#endif // AB_DQ_H
+#endif
