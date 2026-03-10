@@ -1,3 +1,60 @@
+/*
+ * dl.h — doubly linked list for C
+ * Part of ab_ds — https://github.com/UniquePython/ab_ds
+ *
+ * USAGE
+ *   In ONE .c file:
+ *     #define AB_DL_IMPLEMENTATION
+ *     #include "dl.h"
+ *
+ *   Define a typed list:
+ *     #define int_eq(a, b) ((a) == (b))
+ *     AB_DL_DEFINE(int, IntDList, int_eq)
+ *
+ *     IntDList dl;
+ *     IntDList_init(&dl);
+ *     IntDList_push_back(&dl, 10);
+ *     IntDList_push_front(&dl, 5);
+ *     IntDList_free(&dl);
+ *
+ * API
+ *   _init(dl)                          initialise (must be called before use)
+ *   _free(dl)                          free all nodes and reset
+ *   _push_front(dl, element)           O(1) prepend
+ *   _push_back(dl, element)            O(1) append
+ *   _pop_front(dl, *out)       bool    remove head, write to out if non-NULL
+ *   _pop_back(dl, *out)        bool    O(1) — uses tail->prev directly
+ *   _insert(dl, index, element)        insert at index [0, size]; walks from
+ *                                      nearer end (O(n/2) worst case)
+ *   _remove(dl, index, *out)   bool    remove at index [0, size-1]
+ *   _get(dl, index)            type*   pointer to element, NULL if out of range
+ *   _set(dl, index, element, *out)     replace element, write old to out if non-NULL
+ *   _clear(dl)                         free all nodes, reset to empty
+ *   _size(dl)                  size_t
+ *   _is_empty(dl)              bool
+ *   _index_of(dl, element)     ptrdiff_t   first index of element, -1 if absent
+ *   _contains(dl, element)     bool
+ *
+ * CONFIGURATION (define before including)
+ *   AB_DL_MALLOC   default: malloc
+ *   AB_DL_FREE     default: free
+ *
+ * LICENSE — MIT
+ *   Copyright (c) 2025 ab_ds contributors
+ *   Permission is hereby granted, free of charge, to any person obtaining
+ *   a copy of this software and associated documentation files (the
+ *   "Software"), to deal in the Software without restriction, including
+ *   without limitation the rights to use, copy, modify, merge, publish,
+ *   distribute, sublicense, and/or sell copies of the Software, and to
+ *   permit persons to whom the Software is furnished to do so, subject to
+ *   the following conditions: The above copyright notice and this
+ *   permission notice shall be included in all copies or substantial
+ *   portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ *   WARRANTY OF ANY KIND.
+ *
+ * VERSION — 0.1.0
+ */
+
 #ifndef AB_DL_H
 #define AB_DL_H
 
@@ -299,4 +356,4 @@
                                                                                \
     AB_DL_DEFINE_FUNCTIONS(type, name, equals_fn)
 
-#endif // AB_DL_H
+#endif
